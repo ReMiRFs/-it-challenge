@@ -1,15 +1,955 @@
-<!doctype html><html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>IT Challenge</title><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; worker-src blob:; frame-src 'self' about:; connect-src 'none'; img-src data:; base-uri 'none'; form-action 'none'"><style>
-*{box-sizing:border-box}body{margin:0;background:#151922;color:#e8edf4;font:16px system-ui,sans-serif}header{height:64px;background:#202530;border-bottom:1px solid #343b48;display:flex;align-items:center;gap:20px;padding:0 4vw}header strong{letter-spacing:2px}header span{margin-left:auto;color:#aeb9c8}button{font:inherit;cursor:pointer;border:1px solid #46505e;border-radius:6px;background:#282e39;color:#e8edf4;padding:10px 15px}button:hover{border-color:#a0cdb0}button.primary{background:#a0cdb0;color:#14251b;border:0;font-weight:700}main{max-width:1450px;margin:auto;padding:24px 4vw}h1{font-size:28px;margin:12px 0}p{line-height:1.5;color:#c1cad7}small,.muted{color:#a5afbf}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.panel{border:1px solid #39414e;border-radius:8px;overflow:hidden;background:#10131a}.bar{background:#262c37;padding:10px 14px;font-size:14px;color:#b8c4d4}textarea{display:block;width:100%;height:340px;resize:vertical;background:#10131a;color:#c9d9ee;border:0;padding:16px;font:16px/1.65 Consolas,monospace;tab-size:2;outline-color:#a0cdb0}canvas{display:block;width:100%;height:340px;object-fit:contain;background:#253b50}iframe{width:100%;height:340px;border:0;background:white}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.actions .next{margin-left:auto}#feedback{white-space:pre-wrap;padding:12px 0;line-height:1.5}#hint{color:#e9bd73;padding:10px 0}.group{margin:22px 0}.group h2{font-size:19px}.tasks{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.task{text-align:left;min-height:100px;display:flex;flex-direction:column;gap:8px}.task small{font-size:12px}.done{color:#a0cdb0}.intro{border-left:3px solid #a0cdb0;padding-left:16px}.output{padding:18px;min-height:340px;white-space:pre-wrap;font:15px/1.6 Consolas,monospace;color:#c9d9ee;overflow:auto;max-height:340px} @media(max-width:800px){.grid{grid-template-columns:1fr}.tasks{grid-template-columns:repeat(2,1fr)}header{gap:8px}textarea{height:240px}}
-</style><header><strong>IT / CHALLENGE</strong><button id="home">Все задания</button><span id="progress"></span><button id="reset">Сбросить прогресс</button></header><main id="main"></main><script>
-const tasks=[{"cat": 0, "title": "Первый запуск", "desc": "Робот стоит в начале дорожки. Доведи его до флага на клетке 4. Команда move(n) перемещает робота на n клеток вправо.", "starter": "move(1);", "hint": "Что означает число внутри скобок?", "tests": [["robot", 4]], "kind": "robot"}, {"cat": 0, "title": "Обратный путь", "desc": "Робот должен оказаться на клетке 2, посетив сначала клетку 6. Отрицательное число означает движение влево.", "starter": "move(6);\nmove(1);", "hint": "Как обозначить противоположное направление?", "tests": [["route", [6, 2]]], "kind": "robot"}, {"cat": 0, "title": "Повторение", "desc": "Дойди до клетки 8 четырьмя одинаковыми шагами. Используй цикл for.", "starter": "for (let i = 0; i < 2; i++) {\n  move(2);\n}", "hint": "Сколько раз выполняется тело цикла?", "tests": [["route", [2, 4, 6, 8]]], "kind": "robot"}, {"cat": 0, "title": "Развилка", "desc": "Функция route(energy) должна возвращать 8 при энергии не меньше 5, иначе 2.", "starter": "function route(energy) {\n  return 2;\n}", "hint": "Где проходит граница между двумя случаями?", "tests": [["fn", "route", [4], 2], ["fn", "route", [5], 8], ["fn", "route", [10], 8]], "kind": "robot"}, {"cat": 0, "title": "Маршрут по массиву", "desc": "Выполни все шаги из массива steps по порядку. Используй цикл, не перечисляй команды вручную.", "starter": "const steps = [2, 3, -1, 4];\n// Твой цикл", "hint": "Как получить каждый элемент массива?", "tests": [["route", [2, 5, 4, 8]]], "kind": "robot"}, {"cat": 1, "title": "Прыжок", "desc": "Подбери силу прыжка, чтобы персонаж достиг платформы. Высота прыжка должна быть не меньше 64 пикселей.", "starter": "let jumpPower = 6;\njump(jumpPower);", "hint": "Какой параметр влияет на высоту?", "tests": [["jump", 64]], "kind": "game"}, {"cat": 1, "title": "Монеты", "desc": "Каждая монета даёт 10 очков. Функция score(coins) должна возвращать итог.", "starter": "function score(coins) {\n  return coins;\n}", "hint": "Как связаны число монет и очки?", "tests": [["fn", "score", [3], 30], ["fn", "score", [0], 0], ["fn", "score", [7], 70]], "kind": "game"}, {"cat": 1, "title": "Магазин", "desc": "Функция buy(balance, price) возвращает остаток после покупки. Если денег недостаточно, баланс не меняется.", "starter": "function buy(balance, price) {\n  return balance - price;\n}", "hint": "Когда вычитание не должно происходить?", "tests": [["fn", "buy", [20, 5], 15], ["fn", "buy", [3, 5], 3], ["fn", "buy", [5, 5], 0]], "kind": "game"}, {"cat": 1, "title": "Комбо", "desc": "Функция combo(hits) возвращает 10 очков за первое попадание, 20 за второе, 30 за третье и так далее. Верни сумму.", "starter": "function combo(hits) {\n  let total = 0;\n  return total;\n}", "hint": "Какая величина меняется на каждом шаге?", "tests": [["fn", "combo", [3], 60], ["fn", "combo", [0], 0], ["fn", "combo", [5], 150]], "kind": "game"}, {"cat": 1, "title": "Таблица рекордов", "desc": "Функция best(scores) возвращает три лучших результата в порядке убывания (или все, если их меньше трёх).", "starter": "function best(scores) {\n  return scores;\n}", "hint": "Как сравнить два числа при сортировке?", "tests": [["fn", "best", [[5, 30, 12, 90]], [90, 30, 12]], ["fn", "best", [[2, 10]], [10, 2]], ["fn", "best", [[]], []]], "kind": "game"}, {"cat": 2, "title": "Заголовок сайта", "desc": "Измени HTML: заголовок h1 должен содержать текст Моя игра.", "starter": "<h1>Привет!</h1>\n<p>Мой первый сайт</p>", "hint": "Какой тег обозначает главный заголовок?", "tests": [["text", "h1", "Моя игра"]], "kind": "web"}, {"cat": 2, "title": "Цвет", "desc": "Сделай фон элемента main синим (blue), а текст белым (white).", "starter": "<style>main { background: gray; color: black; }</style>\n<main>Мой сайт</main>", "hint": "Чем отличается цвет текста от цвета фона?", "tests": [["css", "main", "backgroundColor", "rgb(0, 0, 255)"], ["css", "main", "color", "rgb(255, 255, 255)"]], "kind": "web"}, {"cat": 2, "title": "Карточка проекта", "desc": "Добавь в article заголовок h2 и кнопку button с текстом Играть.", "starter": "<article>\n  <p>Новая игра</p>\n</article>", "hint": "Какие элементы должны находиться внутри article?", "tests": [["exists", "article h2"], ["text", "article button", "Играть"]], "kind": "web"}, {"cat": 2, "title": "Галерея", "desc": "Расположи три карточки в ряд с помощью display: flex и расстоянием 12px.", "starter": "<style>.gallery { display: block; }</style>\n<div class=\"gallery\"><div>Игра 1</div><div>Игра 2</div><div>Игра 3</div></div>", "hint": "Какой элемент управляет расположением дочерних карточек?", "tests": [["css", ".gallery", "display", "flex"], ["css", ".gallery", "gap", "12px"], ["count", ".gallery > div", 3]], "kind": "web"}, {"cat": 2, "title": "Адаптивная сетка", "desc": "Создай сетку из двух равных колонок, а при ширине до 400px — одну колонку. Используй grid и @media.", "starter": "<style>.gallery { display:grid; grid-template-columns:1fr; }</style>\n<div class=\"gallery\"><div>A</div><div>B</div></div>", "hint": "Как браузер узнаёт, что экран стал узким?", "tests": [["grid", ".gallery", 2, 1]], "kind": "web"}, {"cat": 3, "title": "Опечатка", "desc": "Исправь код, чтобы функция double(n) удваивала число.", "starter": "function double(n) {\n  return N * 2;\n}", "hint": "Одинаковы ли имена с большой и маленькой буквы?", "tests": [["fn", "double", [4], 8], ["fn", "double", [-3], -6]], "kind": "console"}, {"cat": 3, "title": "Сломанный счётчик", "desc": "Функция count(n) должна возвращать n, увеличивая счётчик в цикле n раз.", "starter": "function count(n) {\n  let total = 0;\n  for (let i=0; i<=n; i++) total++;\n  return total;\n}", "hint": "Сколько итераций происходит при n = 0?", "tests": [["fn", "count", [0], 0], ["fn", "count", [4], 4], ["fn", "count", [9], 9]], "kind": "console"}, {"cat": 3, "title": "Пароль", "desc": "Функция allowed(code) должна возвращать true только для строки \"OPEN\".", "starter": "function allowed(code) {\n  if (code = \"OPEN\") return true;\n  return false;\n}", "hint": "Чем присваивание отличается от сравнения?", "tests": [["fn", "allowed", ["OPEN"], true], ["fn", "allowed", ["NO"], false], ["fn", "allowed", [""], false]], "kind": "console"}, {"cat": 3, "title": "Среднее", "desc": "Исправь функцию среднего арифметического непустого массива.", "starter": "function average(a) {\n  let sum = 0;\n  for (const n of a) sum = n;\n  return sum / a.length;\n}", "hint": "Сохраняется ли сумма предыдущих элементов?", "tests": [["fn", "average", [[2, 4, 6]], 4], ["fn", "average", [[10]], 10], ["fn", "average", [[1, 2]], 1.5]], "kind": "console"}, {"cat": 3, "title": "Дубликаты", "desc": "Функция unique(a) должна сохранять только первые появления элементов в исходном порядке.", "starter": "function unique(a) {\n  let result = [];\n  for (const x of a) {\n    if (result.includes(x)) result.push(x);\n  }\n  return result;\n}", "hint": "В каком случае элемент нужно добавить?", "tests": [["fn", "unique", [[2, 1, 2, 3, 1]], [2, 1, 3]], ["fn", "unique", [[]], []], ["fn", "unique", [[4, 4]], [4]]], "kind": "console"}, {"cat": 4, "title": "Палиндром", "desc": "Функция palindrome(s) проверяет, одинаково ли слово читается в обе стороны. Регистр не учитывается.", "starter": "function palindrome(s) {\n  return false;\n}", "hint": "Как сравнить исходную строку с обратной?", "tests": [["fn", "palindrome", ["Казак"], true], ["fn", "palindrome", ["code"], false], ["fn", "palindrome", [""], true]], "kind": "console"}, {"cat": 4, "title": "Частоты", "desc": "Функция frequent(a) возвращает наиболее частое число в непустом массиве. При равенстве — меньшее число.", "starter": "function frequent(a) {\n  return a[0];\n}", "hint": "Как хранить число появлений каждого значения?", "tests": [["fn", "frequent", [[3, 2, 3, 2]], 2], ["fn", "frequent", [[1, 7, 7, 3]], 7], ["fn", "frequent", [[9]], 9]], "kind": "console"}, {"cat": 4, "title": "Скобки", "desc": "Функция balanced(s) проверяет правильность вложения круглых и квадратных скобок. Строка содержит только скобки.", "starter": "function balanced(s) {\n  return true;\n}", "hint": "Какая открывающая скобка должна закрываться первой?", "tests": [["fn", "balanced", ["([])"], true], ["fn", "balanced", ["([)]"], false], ["fn", "balanced", ["(()"], false], ["fn", "balanced", [""], true], ["fn", "balanced", ["]"], false]], "kind": "console"}, {"cat": 4, "title": "Минимум монет", "desc": "Функция minCoins(n) возвращает минимальное число монет номиналом 1, 3 и 4 для суммы n (целое 0–100).", "starter": "function minCoins(n) {\n  return n;\n}", "hint": "Можно ли использовать уже найденные ответы для меньших сумм?", "tests": [["fn", "minCoins", [6], 2], ["fn", "minCoins", [0], 0], ["fn", "minCoins", [10], 3], ["fn", "minCoins", [99], 25]], "kind": "console"}, {"cat": 4, "title": "Кратчайший путь", "desc": "Функция distance(grid) возвращает минимальное число шагов из верхнего левого угла в нижний правый. 0 — свободно, 1 — стена. Ходить можно по четырём направлениям. Если пути нет, верни -1.", "starter": "function distance(grid) {\n  return -1;\n}", "hint": "Как исследовать сначала все клетки на расстоянии одного шага, затем двух?", "tests": [["fn", "distance", [[[0, 0], [1, 0]]], 2], ["fn", "distance", [[[0, 1], [1, 0]]], -1], ["fn", "distance", [[[0]]], 0], ["fn", "distance", [[[0, 0, 0], [1, 1, 0], [0, 0, 0]]], 4]], "kind": "console"}];const cats=['Алгоритмы','Разработка игр','Создание сайтов','Поиск ошибок','Экспертные задачи'];let state={done:[],drafts:{}};try{const raw=JSON.parse(localStorage.getItem('itchallenge-v1'));if(raw&&typeof raw==='object'){state.done=Array.isArray(raw.done)?[...new Set(raw.done.filter(i=>Number.isInteger(i)&&i>=0&&i<25))]:[];for(let i=0;i<25;i++){if(typeof raw.drafts?.[i]==='string')state.drafts[i]=raw.drafts[i].slice(0,12000)}}}catch{}let current=0,worker=null,runId=0;const $=id=>document.getElementById(id);function save(){try{localStorage.setItem('itchallenge-v1',JSON.stringify(state))}catch{}$('progress').textContent=`Выполнено: ${state.done.length} / 25`;}function stop(){runId++;if($('run'))$('run').disabled=false;if(worker){worker.terminate();worker=null}}function menu(){stop();$('main').innerHTML='<h1>Выбери своё испытание</h1><p>Начни с первого задания вместе с преподавателем. Затем выбирай любое направление.</p>'+cats.map((c,k)=>`<section class="group"><h2>0${k+1} / ${c}</h2><div class="tasks">${tasks.map((t,i)=>t.cat===k?`<button class="task" data-i="${i}"><small>${String(i+1).padStart(2,'0')} · ${k===4?'Эксперт': ['Старт','Старт','Средний','Сложный','Сложный'][i%5]}</small><b>${t.title}</b><small class="done">${state.done.includes(i)?'✓ Выполнено':''}</small></button>`:'').join('')}</div></section>`).join('');document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>openTask(+b.dataset.i));save()}
-function openTask(i){stop();current=i;let t=tasks[i];$('main').innerHTML=`<small>${cats[t.cat]} / ${i+1} из 25</small><h1>${t.title}</h1><p>${t.desc}</p><div class="grid"><section class="panel"><div class="bar">${t.kind==='web'?'index.html':'main.js'} · редактор кода</div><textarea id="code" maxlength="12000" spellcheck="false" aria-label="Редактор кода"></textarea></section><section class="panel"><div class="bar">Результат выполнения</div><div id="view"></div></section></div><div class="actions"><button class="primary" id="run">▶ Запустить код</button><button id="hintBtn">Подсказка</button><button id="restore">Вернуть исходный код</button><button class="next" id="next">${i===0?'Выбрать направление':'Следующее задание'} →</button></div><div id="hint" hidden></div><div id="feedback" role="status" aria-live="polite">Измени код и запусти программу.</div>`;let ed=$('code');ed.value=state.drafts[i]??t.starter;ed.oninput=()=>{stop();state.drafts[i]=ed.value;save();$('feedback').style.color='';$('feedback').textContent='Код изменён. Запусти его для проверки.'};ed.onkeydown=e=>{if(e.key==='Tab'){e.preventDefault();ed.setRangeText('  ',ed.selectionStart,ed.selectionEnd,'end');ed.oninput()}if(e.ctrlKey&&e.key==='Enter'){e.preventDefault();run()}};$('run').onclick=run;$('hintBtn').onclick=()=>{$('hint').hidden=false;$('hint').textContent=t.hint};$('restore').onclick=()=>{stop();ed.value=t.starter;ed.oninput();preview(t);$('feedback').textContent='Исходный код восстановлен.'};$('next').onclick=()=>i===0||i===24?menu():openTask(i+1);preview(t);save()}
-function preview(t){$('view').innerHTML=t.kind==='web'?'<iframe id="web" sandbox="allow-same-origin" title="Предпросмотр сайта"></iframe>':t.kind==='robot'||t.kind==='game'?'<canvas id="scene" width="640" height="340"></canvas>':'<div class="output" id="out">Здесь появятся результаты тестов.</div>';if(t.kind==='web'){$('web').srcdoc=webDoc(t.starter)}else if($('scene'))draw(t,0,0,[])}
-function draw(t,pos,height,lines){let c=$('scene');if(!c)return;let x=c.getContext('2d');x.fillStyle='#253b50';x.fillRect(0,0,640,340);x.fillStyle='#304c60';for(let i=0;i<12;i++)x.fillRect(i*60,220-(i*47%110),42,120+(i*47%110));x.fillStyle='#e8dbac';x.beginPath();x.arc(540,60,26,0,7);x.fill();if(t.kind==='robot'){for(let i=0;i<10;i++){x.fillStyle=i===pos?'#a0cdb0':'#44566a';x.fillRect(20+i*60,230,54,50);x.fillStyle='#fff';x.font='14px monospace';x.fillText(i,42+i*60,267)}let target=t.tests[0][0]==='robot'?t.tests[0][1]:t.tests[0][0]==='route'?t.tests[0][1].at(-1):null;if(target!==null){x.fillStyle='#f5c85d';x.fillRect(42+target*60,195,4,35);x.fillRect(46+target*60,195,19,13)}x.fillStyle='#e7a76e';x.fillRect(28+pos*60,198,35,30);x.fillStyle='#182630';x.fillRect(34+pos*60,204,23,10)}else{x.fillStyle='#91b27b';x.fillRect(0,270,640,70);x.fillRect(380,206,180,12);x.fillStyle='#f5c85d';x.beginPath();x.arc(470,187,10,0,7);x.fill();x.fillStyle='#e7a76e';x.fillRect(height>=64?440:100,240-Math.min(height,150),30,30)}x.fillStyle='#fff';x.font='15px monospace';lines.slice(0,4).forEach((l,i)=>x.fillText(l.slice(0,75),15,22+i*20))}
-function webDoc(code){const doc=new DOMParser().parseFromString(code,'text/html');doc.querySelectorAll('script,iframe,frame,object,embed,link,meta,base,form,svg,math,video,audio').forEach(e=>e.remove());for(const e of doc.querySelectorAll('*'))for(const a of [...e.attributes])if(/^on/i.test(a.name)||['href','src','srcset','action','formaction','ping','background'].includes(a.name.toLowerCase()))e.removeAttribute(a.name);code=doc.head.innerHTML+doc.body.innerHTML;return '<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; img-src data:"><style>body{font:18px system-ui;padding:24px;margin:0}article,.gallery>div{padding:12px;border:1px solid #ddd;border-radius:6px}button{padding:8px}</style>'+code}
-function explainError(message){const m=String(message);const rules=[[/is not defined/i,'Имя не определено. Проверь написание переменных и функций.'],[/Unexpected end|missing.*after/i,'Код не завершён. Проверь скобки и кавычки.'],[/Unexpected token|Unexpected identifier|Invalid or unexpected token/i,'Синтаксическая ошибка. Проверь символы, скобки и написание команд.'],[/already been declared/i,'Имя объявлено повторно.'],[/not a function/i,'Попытка вызвать значение, которое не является функцией.'],[/Cannot read properties|Cannot set properties/i,'Попытка обратиться к отсутствующему значению.'],[/Assignment to constant/i,'Нельзя изменить константу.'],[/Maximum call stack/i,'Слишком много вложенных вызовов функций.'],[/Invalid array length/i,'Недопустимый размер массива.'],[/BigInt|circular structure/i,'Результат имеет неподдерживаемый формат.']];const match=rules.find(([r])=>r.test(m));return match?[match[1],'JavaScript: '+m]:[m]}
-function finish(ok,lines){$('run').disabled=false;$('feedback').textContent=(ok?'✓ Задание выполнено!':'Пока не получилось. Проверь результат и попробуй ещё раз.')+'\n'+lines.join('\n');$('feedback').style.color=ok?'#a0cdb0':'#e9bd73';if(ok&&!state.done.includes(current)){state.done.push(current);save()}}
-async function runWeb(t,code,id){let f=$('web');let load=()=>new Promise((r,j)=>{let timer=setTimeout(()=>j(Error('Предпросмотр не загрузился')),2000);f.onload=()=>{clearTimeout(timer);r()};f.srcdoc=webDoc(code)});await load();if(id!==runId)return;let d=f.contentDocument,w=f.contentWindow;let results=[];for(let test of t.tests){let [type,sel,a,b]=test,e=d.querySelector(sel),ok=false;if(type==='text')ok=e?.textContent.trim()===a;if(type==='exists')ok=!!e;if(type==='count')ok=d.querySelectorAll(sel).length===a;if(type==='css')ok=!!e&&w.getComputedStyle(e)[a]===b;if(type==='grid'&&e){f.style.width='600px';await new Promise(r=>setTimeout(r,80));if(id!==runId)return;let n=w.getComputedStyle(e).gridTemplateColumns.split(' ').length;f.style.width='350px';await new Promise(r=>setTimeout(r,80));if(id!==runId)return;ok=n===a&&w.getComputedStyle(e).gridTemplateColumns.split(' ').length===b;f.style.width='100%'}let detail='';if(!e)detail='Не найден элемент '+sel;else if(type==='text')detail='Текущий текст: '+e.textContent.trim().slice(0,100);else if(type==='css')detail='Текущее свойство '+a+': '+w.getComputedStyle(e)[a];else if(type==='count')detail='Найдено элементов: '+d.querySelectorAll(sel).length;else if(type==='grid')detail='Проверь расположение колонок при разных размерах окна.';results.push({ok,detail})}finish(results.every(v=>v.ok),results.map((v,i)=>`Проверка ${i+1}: ${v.ok?'пройдена':'не пройдена. '+v.detail}`))}
-const workerSource=`const send=self.postMessage.bind(self);for(const key of ['fetch','XMLHttpRequest','WebSocket','EventSource','importScripts','Worker','SharedWorker','BroadcastChannel','indexedDB','caches']){try{Object.defineProperty(self,key,{value:undefined,writable:false,configurable:false})}catch{}}self.onmessage=e=>{let {code,tests}=e.data,pos=0,route=[],height=0,logs=[];try{const move=n=>{if(!Number.isInteger(n))throw Error('Команда move ожидает целое число.');if(pos+n<0||pos+n>9)throw Error('Робот вышел за пределы дорожки');pos+=n;if(route.length>=200)throw Error('Слишком много команд движения');route.push(pos)};const jump=n=>{if(typeof n!=='number'||!Number.isFinite(n)||n<0)throw Error('Некорректная сила прыжка');if(n>1000)throw Error('Слишком большое значение');height=n*n/1.5};const checks=tests.filter(t=>t[0]==='fn');const calls=checks.map(t=>t[1]+'(...'+JSON.stringify(t[2])+')').join(',');let values=new Function('move','jump','console',code+'\\n;return ['+calls+'];')(move,jump,{log:(...a)=>{if(logs.length<10)logs.push(a.map(v=>String(v).slice(0,300)).join(' ').slice(0,500))}});let j=0;let results=tests.map(t=>{let v=t[0]==='fn'?values[j++]:t[0]==='robot'?pos:t[0]==='route'?route:height;let expected=t[0]==='fn'?t[3]:t[1];return {ok:t[0]==='jump'?v>=expected:JSON.stringify(v)===JSON.stringify(expected),line:'Проверка '+(t[0]==='fn'?t[1]+'('+t[2].map(x=>JSON.stringify(x)).join(', ')+')':t[0]==='jump'?'высоты': 'маршрута')+': '+(v===undefined?'undefined (нет возвращаемого значения)':typeof v==='number'&&!Number.isFinite(v)?String(v):JSON.stringify(v))}});send({results,pos,height,route,logs})}catch(err){send({error:String(err.message).slice(0,500)})}}`;
-function run(){stop();let id=runId,t=tasks[current],code=$('code').value;$('feedback').style.color='';$('feedback').textContent='Выполняется…';if(!code.trim()){finish(false,['Редактор пуст. Напиши код или восстанови исходный.']);return}if(code.length>12000){finish(false,['Код слишком длинный.']);return}$('run').disabled=true;if(t.kind==='web'){if(!/<[a-z][^>]*>/i.test(code)){finish(false,['Не найдено HTML-элементов. Проверь разметку.']);return}runWeb(t,code,id).catch(e=>{if(id===runId)finish(false,[String(e.message)])});return}let url=URL.createObjectURL(new Blob([workerSource],{type:'text/javascript'}));try{worker=new Worker(url)}catch(e){finish(false,['Не удалось запустить редактор: '+e.message]);return}finally{URL.revokeObjectURL(url)}let active=worker;let timer=setTimeout(()=>{if(id===runId){stop();finish(false,['Программа выполняется слишком долго. Проверь циклы.'])}},1500);active.onmessage=e=>{clearTimeout(timer);if(id!==runId)return;active.terminate();worker=null;let d=e.data;if(!d||typeof d!=='object'||(!d.error&&(!Array.isArray(d.results)||d.results.length!==t.tests.length||!d.results.every(r=>r&&typeof r.ok==='boolean'&&typeof r.line==='string')||!Array.isArray(d.logs)||d.logs.length>10||!d.logs.every(v=>typeof v==='string'&&v.length<=500)||!Array.isArray(d.route)||d.route.length>200||!d.route.every(v=>Number.isInteger(v)&&v>=0&&v<=9)||!Number.isFinite(d.pos)||!Number.isFinite(d.height)))){finish(false,['Некорректный результат выполнения.']);return}if(d.error){finish(false,explainError(d.error));return}let lines=d.results.map(r=>(r.ok?'✓ ':'× ')+r.line.slice(0,500)+(r.ok?'':' — результат не соответствует условию'));if($('out'))$('out').textContent=[...d.logs,...lines].join('\n');if($('scene')){draw(t,d.pos,d.height,lines);if(t.kind==='robot'&&d.route.length){let steps=[0,...d.route];steps.forEach((p,k)=>setTimeout(()=>{if(id===runId)draw(t,p,d.height,k===steps.length-1?lines:[])},k*180))}}finish(d.results.every(r=>r.ok),lines)};active.onerror=e=>{clearTimeout(timer);if(id===runId){stop();finish(false,explainError(e.message||'Ошибка запуска'))}};active.postMessage({code,tests:t.tests})}
-$('home').onclick=menu;$('reset').onclick=()=>{if(confirm('Удалить прогресс и код предыдущей группы?')){stop();state={done:[],drafts:{}};try{localStorage.removeItem('itchallenge-v1')}catch{}save();openTask(0)}};openTask(0);
-</script></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; worker-src blob:; frame-src 'self' about:; base-uri 'none'; form-action 'none'">
+  <title>IT Challenge — практикум по программированию</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #141517; --panel: #1c1e21; --editor: #17191c; --raised: #24272b;
+      --line: #383c43; --text: #f2f0eb; --muted: #acb0b9; --accent: #f4cc75;
+      --good: #9cdbb0; --bad: #ffa99e; --radius: 8px;
+      --mono: "Cascadia Code", Consolas, monospace;
+      font: 15px/1.5 system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+    h1, h2, p { margin: 0; }
+    button { font: inherit; color: inherit; cursor: pointer; }
+    button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    button:disabled { cursor: wait; opacity: .7; }
+    .app { display: flex; flex-direction: column; min-height: 100dvh; }
+    .top {
+      min-height: 60px; display: flex; align-items: center; gap: 18px; padding: 8px 24px;
+      background: var(--panel); border-bottom: 1px solid var(--line);
+    }
+    .brand, .plain {
+      display: inline-flex; align-items: center; gap: 9px; background: transparent; border: 0;
+      padding: 6px; color: var(--muted); border-radius: 4px;
+    }
+    .brand { color: var(--text); font-weight: 800; letter-spacing: .04em; padding: 0; white-space: nowrap; }
+    .mark { background: var(--accent); color: #201907; border-radius: 5px; padding: 4px 6px; font: 700 15px var(--mono); }
+    .plain:hover { color: var(--text); background: var(--raised); }
+    .plain.danger:hover { color: var(--bad); }
+    .progress { display: flex; align-items: center; gap: 10px; margin-left: auto; color: var(--muted); font-size: 13px; white-space: nowrap; }
+    progress { width: 74px; height: 6px; accent-color: var(--accent); }
+    .layout { display: grid; grid-template-columns: 192px minmax(0, 1fr); flex: 1; }
+    aside { background: var(--editor); border-right: 1px solid var(--line); padding: 21px 12px; }
+    .sidebar-label { font-size: 12px; color: var(--muted); margin: 0 8px 10px; }
+    nav { display: grid; gap: 4px; }
+    nav button {
+      width: 100%; display: flex; align-items: center; gap: 8px; padding: 8px;
+      text-align: left; border: 1px solid transparent; border-radius: 5px;
+      background: transparent; font-size: 13px; color: var(--muted);
+    }
+    nav button:hover { color: var(--text); background: var(--raised); }
+    nav button[aria-current="true"] { background: var(--raised); border-color: var(--line); color: var(--text); }
+    .nav-code { color: var(--accent); min-width: 2.2em; font: 12px var(--mono); }
+    main { width: 100%; min-width: 0; max-width: 1700px; margin-inline: auto; padding: 22px 24px; }
+    main.workspace { display: flex; flex-direction: column; gap: 15px; height: calc(100dvh - 60px); min-height: 560px; }
+    .breadcrumb { color: var(--muted); font-size: 13px; margin-bottom: 4px; }
+    .breadcrumb span { color: var(--accent); }
+    h1 { font-size: clamp(27px, 3vw, 39px); line-height: 1.13; font-weight: 780; letter-spacing: -.035em; }
+    .task-summary p, .catalog-lede { color: #d1d3da; max-width: 88ch; margin-top: 7px; }
+    .task-summary p { overflow-wrap: anywhere; }
+    .task-actions { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    .hint { min-width: 0; font-size: 13px; }
+    .hint summary { color: var(--accent); width: fit-content; cursor: pointer; }
+    .hint p { color: var(--text); margin: 4px 0 0; }
+    .grid {
+      display: grid; grid-template-columns: minmax(0, 1.07fr) minmax(0, 1fr);
+      gap: 12px; flex: 1; min-height: 320px;
+    }
+    .panel {
+      display: flex; flex-direction: column; min-width: 0; min-height: 0; border: 1px solid var(--line);
+      border-radius: var(--radius); overflow: hidden; background: var(--panel);
+    }
+    .bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0;
+      min-height: 42px; padding: 7px 12px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 13px;
+    }
+    .bar h2 { color: var(--text); font-size: 13px; font-weight: 650; }
+    .file { font: 12px var(--mono); }
+    .editor { display: flex; flex: 1; min-height: 0; background: var(--editor); }
+    .editor:focus-within { box-shadow: inset 0 0 0 1px var(--accent); }
+    .gutter, textarea { font: 15px/24px var(--mono); padding-block: 12px; }
+    .gutter {
+      flex: 0 0 44px; padding-inline: 5px 8px; margin: 0; border-right: 1px solid var(--line);
+      text-align: right; overflow: hidden; user-select: none; color: var(--muted);
+    }
+    textarea {
+      min-width: 0; width: 100%; resize: none; border: 0; border-radius: 0; background: transparent;
+      color: #e5e7ed; caret-color: var(--accent); padding-inline: 12px; outline: none; tab-size: 2;
+    }
+    textarea::selection { background: #65512b; color: #fff; }
+    .controls {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 7px 10px;
+      padding: 9px 11px; border-top: 1px solid var(--line);
+    }
+    .primary {
+      display: inline-flex; gap: 8px; align-items: center; padding: 8px 12px; font-weight: 750;
+      background: var(--accent); color: #221a0c; border-radius: 5px; border: 1px solid transparent;
+    }
+    .primary:hover:not(:disabled) { background: #ffe1a0; }
+    .small { font-size: 12px; }
+    .shortcut { margin-left: auto; color: var(--muted); font: 11px var(--mono); white-space: nowrap; }
+    #view { flex: 1; min-height: 0; display: grid; overflow: hidden; background: var(--editor); }
+    #view[hidden] { display: none; }
+    canvas, iframe { grid-area: 1 / 1; width: 100%; height: 100%; min-height: 0; border: 0; display: block; }
+    canvas { object-fit: contain; }
+    iframe { background: #fff; }
+    iframe.runner { position: absolute; width: 0; height: 0; visibility: hidden; }
+    .feedback {
+      display: flex; flex-direction: column; flex: 0 1 auto; min-height: 50px; max-height: 43%;
+      border-top: 1px solid var(--line); padding: 10px 12px; gap: 3px; overflow: auto;
+    }
+    .feedback.full { flex: 1; max-height: none; border-top: 0; }
+    .feedback-title { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .feedback[data-status="success"] .feedback-title { color: var(--good); }
+    .feedback[data-status="wrong"] .feedback-title { color: var(--accent); }
+    .feedback[data-status="error"] .feedback-title { color: var(--bad); }
+    .detail { margin: 0; font: 13px/1.55 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .catalog-lede { margin-bottom: 16px; }
+    .catalog-group { margin: 18px 0; }
+    .catalog-group h2 { font-size: 16px; margin-bottom: 8px; }
+    .tasks { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .task {
+      display: flex; flex-direction: column; align-items: flex-start; min-width: 0; min-height: 70px;
+      gap: 5px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 6px;
+      background: var(--panel); text-align: left; line-height: 1.25;
+    }
+    .task:hover { background: var(--raised); border-color: var(--accent); }
+    .task small { font-size: 11px; color: var(--muted); }
+    .task .done { color: var(--good); }
+    .task b { font-size: 14px; overflow-wrap: anywhere; }
+    dialog {
+      color: var(--text); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+      max-width: min(430px, calc(100% - 28px)); padding: 22px;
+    }
+    dialog::backdrop { background: #000a; }
+    dialog p { color: var(--muted); margin: 8px 0 16px; }
+    dialog form { display: flex; justify-content: flex-end; gap: 8px; }
+    .storage-note { font-size: 12px; color: var(--accent); margin-left: auto; }
+    @media (max-width: 1170px) {
+      .shortcut { display: none; }
+      .layout { grid-template-columns: 172px minmax(0, 1fr); }
+    }
+    @media (min-width: 941px) and (max-height: 780px) {
+      .catalog-group { margin-block: 12px; }
+      .catalog-group h2 { margin-bottom: 6px; }
+      .task { min-height: 58px; }
+    }
+    @media (max-width: 940px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      aside { display: none; }
+      .tasks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 690px) {
+      .top { padding: 8px 12px; gap: 5px 12px; flex-wrap: wrap; }
+      .progress { margin-left: 0; order: 2; }
+      main, main.workspace { padding: 16px 12px; height: auto; }
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .editor { min-height: 235px; }
+      #view { min-height: 220px; }
+      .feedback { max-height: 180px; }
+      .feedback.full { min-height: 130px; }
+      .tasks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (forced-colors: active) {
+      .editor:focus-within { outline: 1px solid Highlight; outline-offset: -2px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <button class="brand" id="brand" type="button" aria-label="IT Challenge — все задания"><span class="mark" aria-hidden="true">&gt;_</span> IT CHALLENGE</button>
+      <button class="plain" id="home" type="button">Все задания</button>
+      <div class="progress"><progress id="progressBar" max="25" value="0" aria-label="Выполнено заданий"></progress><span id="progress"></span></div>
+      <button class="plain danger small" id="reset" type="button">Сбросить прогресс</button>
+      <span class="storage-note" id="storageNote" role="status" hidden></span>
+    </header>
+    <div class="layout">
+      <aside aria-label="Направления">
+        <p class="sidebar-label">Направления</p>
+        <nav id="categories" aria-label="Направления практикума"></nav>
+      </aside>
+      <main id="main"></main>
+    </div>
+  </div>
+  <dialog id="resetDialog" aria-labelledby="resetTitle">
+    <h2 id="resetTitle">Сбросить прогресс?</h2>
+    <p>Черновики и отметки о выполнении будут удалены с этого устройства.</p>
+    <form method="dialog">
+      <button class="plain" value="cancel" autofocus>Отмена</button>
+      <button class="primary" value="reset">Сбросить</button>
+    </form>
+  </dialog>
+  <script>
+    const tasks = [
+      { cat: 0, kind: "robot", title: "Первый запуск",
+        desc: "Доведи робота от клетки 0 до флага на клетке 4. Команда move(n) сдвигает его на n клеток. Измени число в команде и нажми «Запустить код».",
+        starter: "move(1);",
+        hint: "Что означает число внутри скобок?",
+        tests: [["robot",4]] },
+      { cat: 0, kind: "robot", title: "Обратный путь",
+        desc: "Остановись на клетке 6, а затем закончи маршрут на клетке 2. Положительное число в move(n) двигает робота вправо, отрицательное — влево.",
+        starter: "move(6);\nmove(1);",
+        hint: "Как обозначить противоположное направление?",
+        tests: [["visit",[6,2]]] },
+      { cat: 0, kind: "robot", title: "Повторение",
+        desc: "Дойди до клетки 8 ровно четырьмя одинаковыми шагами. Попробуй повторить команды циклом for.",
+        starter: "for (let i = 0; i < 2; i++) {\n  move(2);\n}",
+        hint: "Сколько раз выполняется тело цикла?",
+        tests: [["route",[2,4,6,8]]] },
+      { cat: 0, kind: "console", title: "Развилка",
+        desc: "Функция route(energy) должна возвращать 8 при энергии не меньше 5, иначе 2.",
+        starter: "function route(energy) {\n  return 2;\n}",
+        hint: "Где проходит граница между двумя случаями?",
+        tests: [["fn","route",[4],2],["fn","route",[5],8],["fn","route",[10],8],["fn","route",[0],2],["fn","route",[6],8]] },
+      { cat: 0, kind: "robot", title: "Маршрут по массиву",
+        desc: "Проведи робота по всем шагам из массива steps по порядку. Попробуй пройти по массиву циклом, чтобы команды работали и после замены шагов.",
+        starter: "const steps = [2, 3, -1, 4];\n// Твой цикл",
+        hint: "Как получить каждый элемент массива?",
+        tests: [["route",[2,5,4,8]]] },
+      { cat: 1, kind: "game", title: "Прыжок",
+        desc: "Измени силу прыжка и запусти код. Персонаж достигает платформы, если высота прыжка составляет хотя бы 64 пикселя.",
+        starter: "let jumpPower = 6;\njump(jumpPower);",
+        hint: "Какой параметр влияет на высоту?",
+        tests: [["jump",64]] },
+      { cat: 1, kind: "console", title: "Монеты",
+        desc: "Каждая монета даёт 10 очков. Функция score(coins) должна возвращать итог.",
+        starter: "function score(coins) {\n  return coins;\n}",
+        hint: "Как связаны число монет и очки?",
+        tests: [["fn","score",[3],30],["fn","score",[0],0],["fn","score",[7],70],["fn","score",[19],190]] },
+      { cat: 1, kind: "console", title: "Магазин",
+        desc: "Функция buy(balance, price) возвращает остаток после покупки. Если денег недостаточно, баланс не меняется.",
+        starter: "function buy(balance, price) {\n  return balance - price;\n}",
+        hint: "Когда вычитание не должно происходить?",
+        tests: [["fn","buy",[20,5],15],["fn","buy",[3,5],3],["fn","buy",[5,5],0],["fn","buy",[0,3],0],["fn","buy",[9,0],9]] },
+      { cat: 1, kind: "console", title: "Комбо",
+        desc: "Функция combo(hits) возвращает 10 очков за первое попадание, 20 за второе, 30 за третье и так далее. Верни сумму.",
+        starter: "function combo(hits) {\n  let total = 0;\n  return total;\n}",
+        hint: "Какая величина меняется на каждом шаге?",
+        tests: [["fn","combo",[3],60],["fn","combo",[0],0],["fn","combo",[5],150],["fn","combo",[1],10],["fn","combo",[12],780]] },
+      { cat: 1, kind: "console", title: "Таблица рекордов",
+        desc: "Функция best(scores) возвращает три лучших результата в порядке убывания (или все, если их меньше трёх).",
+        starter: "function best(scores) {\n  return scores;\n}",
+        hint: "Как сравнить два числа при сортировке?",
+        tests: [["fn","best",[[5,30,12,90]],[90,30,12]],["fn","best",[[2,10]],[10,2]],["fn","best",[[]],[]],["fn","best",[[11,4,11,100,1]],[100,11,11]]] },
+      { cat: 2, kind: "web", title: "Заголовок сайта",
+        desc: "Измени HTML: заголовок h1 должен содержать текст Моя игра.",
+        starter: "<h1>Привет!</h1>\n<p>Мой первый сайт</p>",
+        hint: "Какой тег обозначает главный заголовок?",
+        tests: [["text","h1","Моя игра"]] },
+      { cat: 2, kind: "web", title: "Цвет",
+        desc: "Сделай фон элемента main синим (blue), а текст белым (white).",
+        starter: "<style>main { background: gray; color: black; }</style>\n<main>Мой сайт</main>",
+        hint: "Чем отличается цвет текста от цвета фона?",
+        tests: [["css","main","backgroundColor","rgb(0, 0, 255)"],["css","main","color","rgb(255, 255, 255)"]] },
+      { cat: 2, kind: "web", title: "Карточка проекта",
+        desc: "Добавь в article заголовок h2 и кнопку button с текстом «Играть». Название и оформление проекта придумай сам.",
+        starter: "<article>\n  <p>Новая игра</p>\n</article>",
+        hint: "Какие элементы должны находиться внутри article?",
+        tests: [["exists","article h2"],["text","article button","Играть"]] },
+      { cat: 2, kind: "web", title: "Галерея",
+        desc: "Расположи три карточки .gallery в одном ряду с помощью display: flex. Между соседними карточками оставь 12px.",
+        starter: "<style>.gallery { display: block; }</style>\n<div class=\"gallery\"><div>Игра 1</div><div>Игра 2</div><div>Игра 3</div></div>",
+        hint: "Какой элемент управляет расположением дочерних карточек?",
+        tests: [["css",".gallery","display","flex"],["css",".gallery","columnGap","12px"],["count",".gallery > div",3],["row",".gallery",3]] },
+      { cat: 2, kind: "web", title: "Адаптивная сетка",
+        desc: "Сделай две одинаковые колонки в .gallery. На ширине 400px и меньше оставь одну колонку. Используй grid и @media.",
+        starter: "<style>.gallery { display:grid; grid-template-columns:1fr; }</style>\n<div class=\"gallery\"><div>A</div><div>B</div></div>",
+        hint: "Как браузер узнаёт, что экран стал узким?",
+        tests: [["grid",".gallery",2,1]] },
+      { cat: 3, kind: "console", title: "Опечатка",
+        desc: "Исправь код, чтобы функция double(n) удваивала число.",
+        starter: "function double(n) {\n  return N * 2;\n}",
+        hint: "Одинаковы ли имена с большой и маленькой буквы?",
+        tests: [["fn","double",[4],8],["fn","double",[-3],-6],["fn","double",[1.5],3],["fn","double",[0],0]] },
+      { cat: 3, kind: "console", title: "Сломанный счётчик",
+        desc: "Функция count(n) должна возвращать n, увеличивая счётчик в цикле n раз.",
+        starter: "function count(n) {\n  let total = 0;\n  for (let i=0; i<=n; i++) total++;\n  return total;\n}",
+        hint: "Сколько итераций происходит при n = 0?",
+        tests: [["fn","count",[0],0],["fn","count",[4],4],["fn","count",[9],9],["fn","count",[17],17]] },
+      { cat: 3, kind: "console", title: "Пароль",
+        desc: "Функция allowed(code) должна возвращать true только для строки \"OPEN\".",
+        starter: "function allowed(code) {\n  if (code = \"OPEN\") return true;\n  return false;\n}",
+        hint: "Чем присваивание отличается от сравнения?",
+        tests: [["fn","allowed",["OPEN"],true],["fn","allowed",["NO"],false],["fn","allowed",[""],false],["fn","allowed",["open"],false],["fn","allowed",[null],false]] },
+      { cat: 3, kind: "console", title: "Среднее",
+        desc: "Исправь функцию average(a), чтобы она возвращала среднее арифметическое непустого массива чисел.",
+        starter: "function average(a) {\n  let sum = 0;\n  for (const n of a) sum = n;\n  return sum / a.length;\n}",
+        hint: "Сохраняется ли сумма предыдущих элементов?",
+        tests: [["fn","average",[[2,4,6]],4],["fn","average",[[10]],10],["fn","average",[[1,2]],1.5],["fn","average",[[-3,0,6]],1]] },
+      { cat: 3, kind: "console", title: "Дубликаты",
+        desc: "Функция unique(a) должна сохранять только первые появления элементов в исходном порядке.",
+        starter: "function unique(a) {\n  let result = [];\n  for (const x of a) {\n    if (result.includes(x)) result.push(x);\n  }\n  return result;\n}",
+        hint: "В каком случае элемент нужно добавить?",
+        tests: [["fn","unique",[[2,1,2,3,1]],[2,1,3]],["fn","unique",[[]],[]],["fn","unique",[[4,4]],[4]],["fn","unique",[["x","y","x","z"]],["x","y","z"]]] },
+      { cat: 4, kind: "console", title: "Палиндром",
+        desc: "Функция palindrome(s) проверяет, одинаково ли строка читается в обе стороны. Регистр не учитывается. Пробелы и знаки препинания считаются обычными символами.",
+        starter: "function palindrome(s) {\n  return false;\n}",
+        hint: "Как сравнить исходную строку с обратной?",
+        tests: [["fn","palindrome",["Казак"],true],["fn","palindrome",["code"],false],["fn","palindrome",[""],true],["fn","palindrome",["А б а"],true],["fn","palindrome",["ab ca"],false]] },
+      { cat: 4, kind: "console", title: "Частоты",
+        desc: "Функция frequent(a) возвращает наиболее частое число в непустом массиве. При равенстве — меньшее число.",
+        starter: "function frequent(a) {\n  return a[0];\n}",
+        hint: "Как хранить число появлений каждого значения?",
+        tests: [["fn","frequent",[[3,2,3,2]],2],["fn","frequent",[[1,7,7,3]],7],["fn","frequent",[[9]],9],["fn","frequent",[[-2,4,-2,4,1]],-2]] },
+      { cat: 4, kind: "console", title: "Скобки",
+        desc: "Функция balanced(s) проверяет правильность вложения круглых и квадратных скобок. Строка содержит только скобки.",
+        starter: "function balanced(s) {\n  return true;\n}",
+        hint: "Какая открывающая скобка должна закрываться первой?",
+        tests: [["fn","balanced",["([])"],true],["fn","balanced",["([)]"],false],["fn","balanced",["(()"],false],["fn","balanced",[""],true],["fn","balanced",["]"],false],["fn","balanced",["([])[]([[]])"],true],["fn","balanced",[")("],false]] },
+      { cat: 4, kind: "console", title: "Минимум монет",
+        desc: "Функция minCoins(n) возвращает минимальное число монет номиналом 1, 3 и 4 для суммы n (целое 0–100).",
+        starter: "function minCoins(n) {\n  return n;\n}",
+        hint: "Можно ли использовать уже найденные ответы для меньших сумм?",
+        tests: [["fn","minCoins",[6],2],["fn","minCoins",[0],0],["fn","minCoins",[10],3],["fn","minCoins",[99],25],["fn","minCoins",[100],25],["fn","minCoins",[2],2],["fn","minCoins",[14],4]] },
+      { cat: 4, kind: "console", title: "Кратчайший путь",
+        desc: "Функция distance(grid) возвращает минимальное число шагов из верхнего левого угла в нижний правый по непустой прямоугольной сетке. 0 — проход, 1 — стена. Ходить можно по четырём направлениям. Если пути нет или один из углов закрыт, верни −1.",
+        starter: "function distance(grid) {\n  return -1;\n}",
+        hint: "Как исследовать сначала все клетки на расстоянии одного шага, затем двух?",
+        tests: [["fn","distance",[[[0,0],[1,0]]],2],["fn","distance",[[[0,1],[1,0]]],-1],["fn","distance",[[[0]]],0],["fn","distance",[[[0,0,0],[1,1,0],[0,0,0]]],4],["fn","distance",[[[0,0,0],[0,1,0]]],3],["fn","distance",[[[1,0],[0,0]]],-1],["fn","distance",[[[0,1],[0,1]]],-1],["fn","distance",[[[0,0,0,0,0],[1,1,1,1,0],[0,0,0,0,0],[0,1,1,1,1],[0,0,0,0,0]]],16]] }
+    ];
+
+    const cats = ['Алгоритмы', 'Разработка игр', 'Веб-разработка', 'Поиск ошибок', 'Экспертные задачи'];
+    const codes = ['JS', 'GM', 'WEB', 'BUG', 'EXP'];
+    const levels = [
+      ['Старт', 'Старт', 'Средний', 'Средний', 'Средний'],
+      ['Старт', 'Старт', 'Средний', 'Средний', 'Сложный'],
+      ['Старт', 'Старт', 'Средний', 'Средний', 'Сложный'],
+      ['Старт', 'Старт', 'Средний', 'Средний', 'Средний'],
+      ['Эксперт', 'Эксперт', 'Эксперт', 'Эксперт', 'Эксперт']
+    ];
+    const storageKey = 'itchallenge-v1';
+    const codeLimit = 12000;
+    const $ = id => document.getElementById(id);
+    const number = i => String(i + 1).padStart(2, '0');
+    const validTask = i => Number.isInteger(i) && i >= 0 && i < tasks.length;
+    const blankState = () => ({ version: 2, done: [], drafts: {}, current: 0 });
+    let state = blankState();
+    let current = 0;
+    let storageAvailable = true;
+    let activeRun;
+    let animation = 0;
+
+    function storageWarning(message) {
+      const note = $('storageNote');
+      note.hidden = !message;
+      note.textContent = message || '';
+    }
+
+    try {
+      const raw = JSON.parse(localStorage.getItem(storageKey));
+      if (raw && typeof raw === 'object' && [undefined, 1, 2].includes(raw.version)) {
+        if (Array.isArray(raw.done)) state.done = [...new Set(raw.done.filter(validTask))];
+        for (let i = 0; i < tasks.length; i++) {
+          if (typeof raw.drafts?.[i] === 'string') state.drafts[i] = raw.drafts[i].slice(0, codeLimit);
+        }
+        if (validTask(raw.current)) state.current = raw.current;
+      } else if (raw !== null) {
+        storageAvailable = false;
+        storageWarning('Сохранение другого формата. Новые черновики доступны до закрытия страницы.');
+      }
+    } catch (error) {
+      storageAvailable = error.name !== 'SecurityError';
+      storageWarning(storageAvailable ? 'Сохранение повреждено. Открыто первое задание.' : 'Хранилище недоступно.');
+    }
+
+    function updateProgress() {
+      $('progressBar').value = state.done.length;
+      $('progress').textContent = 'Решено ' + state.done.length + ' / ' + tasks.length;
+    }
+
+    function save() {
+      updateProgress();
+      if (!storageAvailable) return;
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      } catch {
+        storageWarning('Черновики сохраняются только до закрытия страницы.');
+      }
+    }
+
+    function stop() {
+      if (activeRun) {
+        activeRun.abort();
+        activeRun = undefined;
+      }
+      cancelAnimationFrame(animation);
+      animation = 0;
+      if ($('run')) $('run').disabled = false;
+    }
+
+    $('categories').innerHTML = cats.map((cat, i) =>
+      '<button type="button" data-cat="' + i + '"><span class="nav-code" aria-hidden="true">' +
+      codes[i] + '</span>' + cat + '</button>').join('');
+    $('categories').addEventListener('click', event => {
+      const nav = event.target.closest('[data-cat]');
+      if (nav) menu(Number(nav.dataset.cat));
+    });
+
+    function highlightCategory(cat) {
+      for (const button of $('categories').children) {
+        if (Number(button.dataset.cat) === cat) button.setAttribute('aria-current', 'true');
+        else button.removeAttribute('aria-current');
+      }
+    }
+
+    function menu(cat) {
+      stop();
+      highlightCategory(cat);
+      $('main').className = 'catalog';
+      const groups = cat === undefined ? cats.map((_, i) => i) : [cat];
+      $('main').innerHTML = '<h1 id="heading" tabindex="-1">' + (cat === undefined ? 'Все задания' : cats[cat]) +
+        '</h1><p class="catalog-lede">' + (cat === undefined
+          ? 'Начни с «Первого запуска» вместе с преподавателем или выбери любое направление.'
+          : 'Выбери задание. Черновики сохраняются отдельно для каждого.') + '</p>' +
+        groups.map(group =>
+          '<section class="catalog-group">' + (cat === undefined ? '<h2>' + cats[group] + '</h2>' : '') +
+          '<div class="tasks">' + tasks.map((task, i) => task.cat === group
+            ? '<button class="task" type="button" data-i="' + i + '"><small>' + number(i) + ' · ' +
+              levels[group][i % 5] + '</small><b>' + task.title + '</b>' +
+              (state.done.includes(i) ? '<small class="done">✓ Решено</small>' : '') + '</button>'
+            : '').join('') + '</div></section>').join('');
+      $('main').querySelectorAll('[data-i]').forEach(button => {
+        button.onclick = () => openTask(Number(button.dataset.i), { focus: true });
+      });
+      $('heading').focus();
+    }
+
+    function report(status, title, details = []) {
+      $('feedback').dataset.status = status;
+      $('feedbackTitle').textContent = title;
+      $('details').textContent = details.join('\n');
+      $('feedback').scrollTop = 0;
+    }
+
+    function showOutcome(results, logs = []) {
+      const passed = results.filter(result => result.ok).length;
+      const ok = passed === results.length;
+      const lines = results.map(result => (result.ok ? '✓ ' : '× ') + result.line);
+      report(ok ? 'success' : 'wrong',
+        (ok ? 'Задание решено' : 'Код выполнен, есть ошибки в результате') +
+        ' · ' + passed + ' / ' + results.length,
+        [...logs.map(line => '› ' + line), ...lines]);
+      if (ok && !state.done.includes(current)) {
+        state.done.push(current);
+        $('taskProgress').textContent = '✓ Решено';
+        save();
+      }
+    }
+
+    function syncGutter(editor) {
+      const lines = editor.value.split('\n').length;
+      const gutter = $('gutter');
+      if (Number(gutter.dataset.lines) !== lines) {
+        gutter.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+        gutter.dataset.lines = lines;
+      }
+      gutter.scrollTop = editor.scrollTop;
+    }
+
+    function openTask(i, { focus = false, reset = false } = {}) {
+      stop();
+      current = i;
+      state.current = i;
+      const task = tasks[i];
+      highlightCategory(task.cat);
+      $('main').className = 'workspace';
+      $('main').innerHTML = [
+        '<section class="task-summary" aria-labelledby="heading">',
+        '<div class="breadcrumb">' + cats[task.cat] + ' / ' + number(i) + ' из ' + tasks.length +
+          ' <span id="taskProgress">' + (state.done.includes(i) ? '✓ Решено' : '') + '</span></div>',
+        '<h1 id="heading" tabindex="-1">' + task.title + '</h1><p>' + task.desc + '</p></section>',
+        '<div class="task-actions"><details class="hint"><summary>Подсказка</summary><p>' + task.hint + '</p></details>',
+        '<button class="plain small" type="button" id="next">' +
+          (i === 0 ? 'Выбрать направление' : i === tasks.length - 1 ? 'Все задания' : 'Следующее задание') + ' →</button></div>',
+        '<div class="grid"><section class="panel" aria-labelledby="editorLabel">',
+        '<div class="bar"><h2 id="editorLabel">Редактор кода</h2><span class="file">' +
+          (task.kind === 'web' ? 'index.html' : 'main.js') + '</span></div>',
+        '<div class="editor"><pre id="gutter" class="gutter" aria-hidden="true"></pre>',
+        '<textarea id="code" aria-labelledby="editorLabel" aria-describedby="editorHelp" maxlength="' + codeLimit +
+          '" wrap="off" spellcheck="false" autocomplete="off" autocapitalize="off" translate="no"></textarea></div>',
+        '<div class="controls"><button class="primary" id="run" type="button"><span aria-hidden="true">▶</span> Запустить код</button>',
+        '<button class="plain small" type="button" id="restore">Вернуть исходный код</button>',
+        '<span class="shortcut" id="editorHelp" title="Esc переводит фокус к кнопке запуска">Ctrl+Enter · Esc</span></div></section>',
+        '<section class="panel" aria-labelledby="outputLabel">',
+        '<div class="bar"><h2 id="outputLabel">Результат</h2><span class="file">' +
+          ({ web: 'Предпросмотр', game: 'Симуляция', robot: 'Симуляция', console: 'Проверки' }[task.kind]) + '</span></div>',
+        '<div id="view"></div>',
+        '<div class="feedback" id="feedback" role="status"><span class="feedback-title" id="feedbackTitle"></span>',
+        '<pre class="detail" id="details"></pre></div></section></div>'
+      ].join('');
+      const editor = $('code');
+      editor.value = state.drafts[i] ?? task.starter;
+      syncGutter(editor);
+      editor.addEventListener('scroll', () => syncGutter(editor));
+      editor.addEventListener('input', () => {
+        stop();
+        syncGutter(editor);
+        state.drafts[i] = editor.value;
+        save();
+        report('ready', 'Код изменён. Запусти его для проверки.');
+      });
+      editor.addEventListener('keydown', event => {
+        if (event.isComposing) return;
+        if (event.key === 'Escape' && !$('resetDialog').open) {
+          ($('run').disabled ? $('restore') : $('run')).focus();
+        } else if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+          event.preventDefault();
+          run();
+        } else if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+          event.preventDefault();
+          document.execCommand('insertText', false, '  ');
+        } else if (event.key === 'Enter' && !event.altKey) {
+          const before = editor.value.slice(0, editor.selectionStart);
+          const indent = before.slice(before.lastIndexOf('\n') + 1).match(/^\s*/)[0];
+          if (indent) {
+            event.preventDefault();
+            document.execCommand('insertText', false, '\n' + indent);
+          }
+        }
+      });
+      $('run').onclick = run;
+      $('restore').onclick = () => {
+        stop();
+        delete state.drafts[i];
+        editor.value = task.starter;
+        editor.scrollTop = editor.scrollLeft = 0;
+        editor.setSelectionRange(0, 0);
+        syncGutter(editor);
+        save();
+        preview(task);
+        report('ready', 'Исходный код восстановлен.');
+      };
+      $('next').onclick = () => i === 0 || i === tasks.length - 1 ? menu() : openTask(i + 1, { focus: true });
+      preview(task);
+      report('ready', reset ? 'Прогресс сброшен. Измени код и запусти его.' : 'Измени код и запусти его.');
+      if (focus) $('heading').focus();
+      if (!reset) save();
+    }
+
+    function preview(task) {
+      const view = $('view');
+      const hasPreview = task.kind !== 'console';
+      view.hidden = !hasPreview;
+      $('feedback').classList.toggle('full', !hasPreview);
+      if (task.kind === 'web') {
+        view.innerHTML = '<iframe id="web" sandbox="allow-same-origin" referrerpolicy="no-referrer" title="Предпросмотр сайта"></iframe>';
+        $('web').srcdoc = webDoc(task.starter);
+      } else if (hasPreview) {
+        view.innerHTML = '<canvas id="scene" width="640" height="340" role="img"></canvas>';
+        draw(task, 0, 0);
+      }
+    }
+
+    function draw(task, pos, height, path = []) {
+      const canvas = $('scene');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const accent = '#f4cc75';
+      const muted = '#acb0b9';
+      const surface = '#24272b';
+      const line = '#383c43';
+      ctx.fillStyle = '#17191c';
+      ctx.fillRect(0, 0, 640, 340);
+      ctx.strokeStyle = '#22252a';
+      ctx.beginPath();
+      for (let x = 20; x < 640; x += 20) { ctx.moveTo(x, 0); ctx.lineTo(x, 340); }
+      for (let y = 20; y < 340; y += 20) { ctx.moveTo(0, y); ctx.lineTo(640, y); }
+      ctx.stroke();
+      ctx.font = '16px Consolas, monospace';
+      const [type, goal] = task.tests[0];
+      if (task.kind === 'robot') {
+        const target = type === 'robot' ? goal : type === 'visit' ? goal[1] : goal.at(-1);
+        canvas.setAttribute('aria-label', 'Робот на клетке ' + pos + '. Цель — клетка ' + target + '.');
+        ctx.fillStyle = muted;
+        ctx.fillText('Позиция робота: ' + pos, 35, 61);
+        ctx.fillStyle = accent;
+        ctx.fillText('Цель: ' + target, 35, 88);
+        for (let i = 0; i < 10; i++) {
+          const x = 37 + i * 57;
+          ctx.fillStyle = path.includes(i) ? '#353126' : surface;
+          ctx.fillRect(x, 222, 51, 49);
+          ctx.strokeStyle = i === pos ? accent : line;
+          ctx.strokeRect(x + .5, 222.5, 50, 48);
+          ctx.fillStyle = i === pos ? accent : muted;
+          ctx.fillText(i, x + 20, 253);
+        }
+        const flag = 62 + target * 57;
+        ctx.fillStyle = accent;
+        ctx.fillRect(flag - 14, 143, 3, 34);
+        ctx.fillRect(flag - 11, 143, 23, 13);
+        const robot = 62 + pos * 57;
+        ctx.fillRect(robot - 16, 185, 32, 25);
+        ctx.fillStyle = '#17191c';
+        ctx.fillRect(robot - 10, 191, 20, 9);
+        ctx.fillStyle = accent;
+        ctx.fillRect(robot - 6, 193, 3, 3);
+        ctx.fillRect(robot + 3, 193, 3, 3);
+      } else {
+        const rounded = Math.round(height * 10) / 10;
+        canvas.setAttribute('aria-label', 'Высота прыжка: ' + rounded + ' пикселей. Цель: ' + goal + '.');
+        ctx.fillStyle = muted;
+        ctx.fillText('Прыжок: ' + rounded + ' px', 35, 61);
+        ctx.fillStyle = accent;
+        ctx.fillText('Цель: ' + goal + ' px', 35, 88);
+        ctx.fillStyle = surface;
+        ctx.fillRect(36, 271, 565, 20);
+        ctx.fillStyle = '#656055';
+        ctx.fillRect(351, 271 - goal, 189, 10);
+        ctx.fillStyle = accent;
+        ctx.fillRect(height >= goal ? 407 : 141, 249 - Math.min(height, 142), 23, 22);
+      }
+    }
+
+    function showMotion(task, result) {
+      const { pos, height, route } = result;
+      if (task.kind !== 'robot' || !route.length || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        draw(task, pos, height, route);
+        return;
+      }
+      const start = performance.now();
+      const interval = Math.min(170, 1200 / route.length);
+      let previousStep = -2;
+      function frame(now) {
+        const step = Math.min(route.length - 1, Math.floor((now - start) / interval) - 1);
+        if (step !== previousStep) {
+          draw(task, route[step] ?? 0, height, route.slice(0, step + 1));
+          previousStep = step;
+        }
+        if (step < route.length - 1) animation = requestAnimationFrame(frame);
+      }
+      animation = requestAnimationFrame(frame);
+    }
+
+
+    const allowedTags = new Set(('h1 h2 h3 h4 h5 h6 p main article section header footer nav aside div span ' +
+      'strong b em i small code pre blockquote ul ol li dl dt dd table caption thead tbody tr th td ' +
+      'a button style br hr figure figcaption details summary img').split(' '));
+    const allowedAttributes = new Set(['class', 'id', 'style', 'title', 'lang', 'dir', 'role', 'alt',
+      'width', 'height', 'colspan', 'rowspan', 'hidden', 'open', 'tabindex', 'type', 'disabled']);
+
+    function webDoc(code) {
+      const template = document.createElement('template');
+      template.innerHTML = code;
+      for (const element of template.content.querySelectorAll('*')) {
+        if (!allowedTags.has(element.localName) || element.namespaceURI !== 'http://www.w3.org/1999/xhtml') {
+          element.remove();
+          continue;
+        }
+        for (const attribute of [...element.attributes]) {
+          if (!allowedAttributes.has(attribute.name) && !attribute.name.startsWith('aria-') && !attribute.name.startsWith('data-')) {
+            element.removeAttribute(attribute.name);
+          }
+        }
+      }
+      return '<!doctype html><html lang="ru"><meta charset="utf-8">' +
+        '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; style-src \'unsafe-inline\'; base-uri \'none\'; form-action \'none\'">' +
+        '<style>body{font:16px system-ui;margin:0;padding:20px;color:#202226;background:#fff}' +
+        'button{font:inherit;padding:7px 10px}article,.gallery>div{padding:10px;border:1px solid #ccc;border-radius:5px}</style>' +
+        template.innerHTML;
+    }
+
+    function loadPreview(frame, doc, signal) {
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => finish(reject, new Error('Предпросмотр не загрузился.')), 2000);
+        const onAbort = () => finish(reject, signal.reason);
+        const onLoad = () => {
+          if (frame.contentDocument?.readyState === 'complete') finish(resolve);
+        };
+        function finish(callback, value) {
+          clearTimeout(timer);
+          frame.removeEventListener('load', onLoad);
+          signal.removeEventListener('abort', onAbort);
+          callback(value);
+        }
+        frame.addEventListener('load', onLoad);
+        signal.addEventListener('abort', onAbort, { once: true });
+        frame.srcdoc = doc;
+      });
+    }
+
+    function verifyWeb(test, frame) {
+      const [type, selector, expected, value] = test;
+      const doc = frame.contentDocument;
+      const win = frame.contentWindow;
+      const element = doc.querySelector(selector);
+      if (!element) return { ok: false, line: 'Не найден элемент ' + selector };
+      if (type === 'exists') return { ok: true, line: 'Найден элемент ' + selector };
+      if (type === 'count') {
+        const count = doc.querySelectorAll(selector).length;
+        return { ok: count === expected, line: 'Число элементов ' + selector + ': ' + count + ' · нужно ' + expected };
+      }
+      if (type === 'text') {
+        const actual = element.textContent.normalize().replace(/\s+/g, ' ').trim();
+        return { ok: actual === expected, line: selector + ' · текст: ' + (actual.slice(0, 100) || '(пусто)') };
+      }
+      const style = win.getComputedStyle(element);
+      if (type === 'css') {
+        return { ok: style[expected] === value, line: selector + ' · ' + expected + ': ' + style[expected] };
+      }
+      if (type === 'row') {
+        const boxes = [...element.children].map(child => child.getBoundingClientRect());
+        const ok = boxes.length === expected && boxes.every(box => box.width > 0 && box.height > 0) &&
+          style.flexDirection.startsWith('row') &&
+          Math.max(...boxes.map(box => box.top)) < Math.min(...boxes.map(box => box.bottom));
+        return { ok, line: ok ? 'Карточки стоят в одном ряду.' : 'Карточки должны стоять в одном ряду.' };
+      }
+      const measure = width => {
+        frame.style.width = width + 'px';
+        const columns = style.gridTemplateColumns.replace(/\[[^\]]*\]/g, '').trim().split(/\s+/);
+        return /^(inline-)?grid$/.test(style.display) ? columns.map(Number.parseFloat) : [];
+      };
+      try {
+        const samples = [600, 401, 400, 350].map(width => ({ width, columns: measure(width) }));
+        const ok = samples.every(({ width, columns }) => {
+          const count = width > 400 ? expected : value;
+          return columns.length === count && columns.every(column =>
+            Number.isFinite(column) && column > 0 && Math.abs(column - columns[0]) < 1);
+        });
+        return { ok, line: 'Колонки по ширине окна · ' + samples.map(({ width, columns }) =>
+          width + ' px: ' + columns.filter(Number.isFinite).length).join(' / ') };
+      } finally {
+        frame.style.width = '';
+      }
+    }
+
+    function workerMain() {
+      self.addEventListener('message', event => {
+        const { code, tests, port } = event.data;
+        const send = port.postMessage.bind(port);
+        let pos = 0;
+        let height = 0;
+        const route = [];
+        const logs = [];
+
+        function invalid(message) {
+          const error = new RangeError(message);
+          error.name = 'InputError';
+          throw error;
+        }
+        function move(n) {
+          if (!Number.isSafeInteger(n)) invalid('Команда move ожидает целое число.');
+          const next = pos + n;
+          if (next < 0 || next > 9) invalid('Робот остаётся на дорожке от 0 до 9. Проверь шаг.');
+          if (route.length >= 200) invalid('Превышен лимит в 200 команд движения.');
+          pos = next;
+          route.push(pos);
+        }
+        function jump(n) {
+          if (!Number.isFinite(n) || n < 0 || n > 1000) invalid('Сила прыжка — число от 0 до 1000.');
+          height = Number((n * n / 1.5).toPrecision(15));
+        }
+        function format(value, depth = 0) {
+          if (typeof value === 'string') return JSON.stringify(value.slice(0, 200));
+          if (value === null) return 'null';
+          if (Array.isArray(value)) {
+            if (depth >= 2) return '[…]';
+            const items = value.slice(0, 8).map(item => format(item, depth + 1));
+            return '[' + items.join(', ') + (value.length > 8 ? ', …' : '') + ']';
+          }
+          if (typeof value === 'object') return '[объект]';
+          if (typeof value === 'function') return '[функция]';
+          return String(value);
+        }
+        function equal(actual, expected) {
+          if (!Array.isArray(expected)) return actual === expected;
+          return Array.isArray(actual) && actual.length === expected.length &&
+            expected.every((value, i) => equal(actual[i], value));
+        }
+        const consoleApi = {};
+        for (const level of ['log', 'info', 'warn', 'error']) {
+          consoleApi[level] = (...args) => {
+            if (logs.length < 10) logs.push(args.slice(0, 6).map(arg => format(arg)).join(' ').slice(0, 500));
+          };
+        }
+        let phase = 'syntax';
+        try {
+          const name = tests.find(test => test[0] === 'fn')?.[1];
+          const body = '"use strict";\n' + code +
+            (name ? '\n;return typeof ' + name + ' === "function" ? ' + name + ' : null;' : '');
+          const executable = new Function('move', 'jump', 'console', body);
+          phase = 'runtime';
+          const fn = executable(move, jump, consoleApi);
+          if (name && typeof fn !== 'function') {
+            send({ error: { phase, message: 'В коде нужна функция ' + name + '.' } });
+            return;
+          }
+          const results = tests.map(test => {
+            const [type, input, args, expected] = test;
+            if (type === 'fn') {
+              const signature = input + '(' + args.map(arg => format(arg)).join(', ') + ')';
+              const actual = fn(...args);
+              const ok = equal(actual, expected);
+              return { ok, line: (signature + ' → ' + format(actual) +
+                (ok ? '' : ' · ожидается ' + format(expected))).slice(0, 500) };
+            }
+            if (type === 'jump') return { ok: height >= input, line: 'Высота: ' +
+              Math.round(height * 10) / 10 + ' px · нужно от ' + input + ' px' };
+            if (type === 'robot') return { ok: pos === input, line: 'Позиция: ' + pos + ' · цель: ' + input };
+            const ok = type === 'visit'
+              ? pos === input[1] && route.slice(0, -1).includes(input[0])
+              : equal(route, input);
+            return { ok, line: 'Остановки: ' + (route.slice(0, 12).join(' → ') || '(нет)') + (route.length > 12 ? ' → …' : '') };
+          });
+          send({ results, pos, height, route, logs });
+        } catch (error) {
+          const at = String(error?.stack || '').match(/<anonymous>:(\d+):\d+/);
+          const line = at ? Number(at[1]) - 3 : 0;
+          send({ error: {
+            phase: error?.name === 'InputError' ? 'input' : phase,
+            message: String(error?.message ?? error).slice(0, 500),
+            line: line > 0 && line <= code.split('\n').length ? line : 0
+          } });
+        }
+      }, { once: true });
+    }
+
+    function runnerFrame() {
+      self.addEventListener('message', event => {
+        const { source, code, tests, port } = event.data;
+        const url = URL.createObjectURL(new Blob([source], { type: 'text/javascript' }));
+        try {
+          const worker = new Worker(url);
+          worker.postMessage({ code, tests, port }, [port]);
+        } catch {
+          port.postMessage({ internal: true });
+        } finally {
+          URL.revokeObjectURL(url);
+        }
+      }, { once: true });
+    }
+
+    function runJS(task, code, signal) {
+      return new Promise((resolve, reject) => {
+        // The opaque frame owns the worker. Only the private port can return results.
+        const frame = document.createElement('iframe');
+        frame.className = 'runner';
+        frame.title = 'Среда выполнения JavaScript';
+        frame.sandbox = 'allow-scripts';
+        frame.srcdoc = '<!doctype html><script>(' + runnerFrame.toString() + ')();<\/script>';
+        const channel = new MessageChannel();
+        const timer = setTimeout(() => finish(resolve, { timeout: true }), 1800);
+        const onAbort = () => finish(reject, signal.reason);
+        function finish(callback, result) {
+          clearTimeout(timer);
+          signal.removeEventListener('abort', onAbort);
+          channel.port1.close();
+          channel.port2.close();
+          frame.remove();
+          callback(result);
+        }
+        channel.port1.onmessage = event => finish(resolve, event.data);
+        frame.onload = () => frame.contentWindow.postMessage({
+          source: '(' + workerMain.toString() + ')();', code, tests: task.tests, port: channel.port2
+        }, '*', [channel.port2]);
+        signal.addEventListener('abort', onAbort, { once: true });
+        document.body.append(frame);
+      });
+    }
+
+    function explain(error) {
+      const rules = [
+        [/is not defined/i, 'Проверь имя переменной или функции.'],
+        [/Unexpected end|missing.*after/i, 'Проверь, закрыты ли скобки и кавычки.'],
+        [/Unexpected token|Unexpected identifier|Invalid or unexpected token/i, 'Проверь символы и написание команд.'],
+        [/already been declared/i, 'Проверь, не объявлено ли это имя дважды.'],
+        [/not a function/i, 'Проверь, что вызываемое значение — функция.'],
+        [/Cannot read properties|Cannot set properties/i, 'Код обращается к свойству отсутствующего значения.'],
+        [/Assignment to constant/i, 'Константу нельзя изменить после объявления.'],
+        [/Maximum call stack/i, 'Слишком много вложенных вызовов. Проверь, где заканчивается рекурсия.'],
+        [/Invalid array length/i, 'Проверь допустимую длину массива.']
+      ];
+      const help = rules.find(([pattern]) => pattern.test(error.message))?.[1];
+      return [help, (error.line ? 'Строка ' + error.line + ' · ' : '') + error.message].filter(Boolean);
+    }
+
+    function validResult(result, task) {
+      return result && Array.isArray(result.results) && result.results.length === task.tests.length &&
+        result.results.every(test => typeof test?.ok === 'boolean' && typeof test.line === 'string' && test.line.length <= 500) &&
+        Array.isArray(result.logs) && result.logs.length <= 10 &&
+        result.logs.every(log => typeof log === 'string' && log.length <= 500) &&
+        Number.isInteger(result.pos) && result.pos >= 0 && result.pos <= 9 &&
+        Number.isFinite(result.height) && result.height >= 0 &&
+        Array.isArray(result.route) && result.route.length <= 200 &&
+        result.route.every(pos => Number.isInteger(pos) && pos >= 0 && pos <= 9);
+    }
+
+    async function run() {
+      if (activeRun) return;
+      const task = tasks[current];
+      const code = $('code').value;
+      if (!code.trim()) {
+        report('error', 'Редактор пуст', ['Напиши код или верни исходный.']);
+        return;
+      }
+      if (code.length > codeLimit) {
+        report('error', 'Код слишком длинный', ['Лимит символов: ' + codeLimit]);
+        return;
+      }
+      stop();
+      const controller = new AbortController();
+      activeRun = controller;
+      const { signal } = controller;
+      $('run').disabled = true;
+      report('ready', 'Код выполняется…');
+      try {
+        if (task.kind === 'web') {
+          await loadPreview($('web'), webDoc(code), signal);
+          if (!signal.aborted) showOutcome(task.tests.map(test => verifyWeb(test, $('web'))));
+          return;
+        }
+        const result = await runJS(task, code, signal);
+        if (signal.aborted) return;
+        if (result?.timeout) {
+          report('error', 'Превышено время выполнения', ['Запуск остановлен. Проверь условия выхода из циклов и рекурсии.']);
+        } else if (result?.error && typeof result.error.message === 'string') {
+          const titles = { syntax: 'Синтаксическая ошибка', runtime: 'Ошибка выполнения', input: 'Недопустимое значение' };
+          report('error', titles[result.error.phase] || 'Ошибка выполнения', explain(result.error));
+        } else if (validResult(result, task)) {
+          if (task.kind === 'robot' || task.kind === 'game') showMotion(task, result);
+          showOutcome(result.results, result.logs);
+        } else {
+          report('error', 'Внутренняя ошибка запуска', ['Попробуй запустить код ещё раз.']);
+        }
+      } catch (error) {
+        if (!signal.aborted) report('error', 'Внутренняя ошибка запуска', [String(error.message || error)]);
+      } finally {
+        if (activeRun === controller) {
+          activeRun = undefined;
+          $('run').disabled = false;
+        }
+      }
+    }
+
+    $('brand').onclick = $('home').onclick = () => menu();
+    $('reset').onclick = () => {
+      $('resetDialog').returnValue = '';
+      $('resetDialog').showModal();
+    };
+    $('resetDialog').addEventListener('close', () => {
+      if ($('resetDialog').returnValue !== 'reset') return;
+      state = blankState();
+      updateProgress();
+      storageWarning('');
+      try {
+        localStorage.removeItem(storageKey);
+        storageAvailable = true;
+      } catch {
+        storageWarning('Хранилище недоступно. Сброшен прогресс открытой страницы.');
+      }
+      openTask(0, { focus: true, reset: true });
+    });
+    window.addEventListener('pagehide', stop);
+    openTask(state.current);
+  </script>
+</body>
+</html>
